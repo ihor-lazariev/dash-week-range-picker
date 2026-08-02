@@ -1,0 +1,11 @@
+include dash_week_range_picker/dash_week_range_picker.min.js
+include dash_week_range_picker/dash_week_range_picker.min.js.map
+include dash_week_range_picker/async-*.js
+include dash_week_range_picker/async-*.js.map
+include dash_week_range_picker/*-shared.js
+include dash_week_range_picker/*-shared.js.map
+include dash_week_range_picker/metadata.json
+include dash_week_range_picker/package-info.json
+include README.md
+include LICENSE
+include package.json
