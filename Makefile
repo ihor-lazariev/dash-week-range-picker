@@ -4,7 +4,8 @@
 # override on the command line if needed, e.g. `make install-dev CONSUMER_VENV=../other-app/venv`
 VENV        ?= venv
 PYTHON      := $(VENV)/bin/python
-CONSUMER_VENV ?= ../ex-bi/venv
+# venv of an app that consumes this component, for `make install-dev` (override on the command line)
+CONSUMER_VENV ?= ../app/venv
 
 help:
 	@echo "dash-week-range-picker"
@@ -84,7 +85,7 @@ bump-major:
 version:
 	@grep -m1 '"version"' package.json | grep -oE '[0-9]+\.[0-9]+\.[0-9]+'
 
-# editable-install into a consuming app's own venv for local dev (default: the ex-bi sibling repo)
+# editable-install into a consuming app's own venv for local dev (set CONSUMER_VENV to its venv)
 install-dev:
 	$(CONSUMER_VENV)/bin/pip install -e .
 
