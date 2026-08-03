@@ -1,11 +1,13 @@
 .PHONY: help install build build-js build-backends dist check release publish \
-        demo serve watch bump-patch bump-minor bump-major version install-dev clean distclean
+        demo serve watch kill-port bump-patch bump-minor bump-major version install-dev clean distclean
 
 # override on the command line if needed, e.g. `make install-dev CONSUMER_VENV=../other-app/venv`
 VENV        ?= venv
 PYTHON      := $(VENV)/bin/python
 # venv of an app that consumes this component, for `make install-dev` (override on the command line)
 CONSUMER_VENV ?= ../app/venv
+# demo server port; `make kill-port` frees it (override e.g. `make kill-port PORT=8051`)
+PORT        ?= 8050
 
 help:
 	@echo "dash-week-range-picker"
@@ -21,6 +23,7 @@ help:
 	@echo "  demo             run the standalone usage.py Dash app (localhost:8050)"
 	@echo "  serve            webpack-dev-server live-reload playground (no Dash/Python involved)"
 	@echo "  watch            webpack --watch: rebuild the served min.js on save (pair with make demo)"
+	@echo "  kill-port        kill a leftover Dash server holding :$(PORT) (debug reloader orphans)"
 	@echo "  bump-patch/minor/major   bump package.json's version (no git commit/tag)"
 	@echo "  version          print the current package.json version"
 	@echo "  install-dev      pip install -e . into CONSUMER_VENV (default: $(CONSUMER_VENV))"
@@ -69,6 +72,22 @@ serve:
 
 watch:
 	npm run watch
+
+# Free the demo port if a previous `make demo` left a server behind. Dash's debug reloader runs a
+# parent + child, so killing by script name (pkill -f usage.py) misses one; target the port instead.
+# Manual only - deliberately NOT a dependency of `demo`, so it can never kill an unrelated process
+# on this port as a silent side effect.
+kill-port:
+	@pids=$$(lsof -ti tcp:$(PORT) 2>/dev/null); \
+	if [ -z "$$pids" ]; then \
+		echo ":$(PORT) is free"; \
+	else \
+		echo "Killing PID(s) on :$(PORT): $$pids"; \
+		kill $$pids 2>/dev/null || true; \
+		sleep 1; \
+		pids=$$(lsof -ti tcp:$(PORT) 2>/dev/null); \
+		if [ -n "$$pids" ]; then echo "Forcing (SIGKILL): $$pids"; kill -9 $$pids 2>/dev/null || true; fi; \
+	fi
 
 bump-patch:
 	npm version patch --no-git-tag-version
