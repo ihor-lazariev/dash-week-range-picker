@@ -26,7 +26,6 @@ WeekRangePickerInput - an ISO-week-granularity range picker (Mantine `Calendar` 
 composed by hand, the same public building blocks Mantine's own `YearPickerInput`/`MonthPickerInput`
 are built from). Clicking any day selects/commits its whole ISO week (Monday-Sunday), instead of the
 arbitrary single day a normal date-range picker would give you.
-
 `value` is always `[startISO, endISO]` where both bounds already fall on a Monday/Sunday
 respectively, or `[startISO, null]` while a range is mid-selection (exactly one week picked so far),
 or `[null, null]` when empty - the same shape a Dash range DatePickerInput already emits, so it drops
@@ -87,11 +86,11 @@ Keyword arguments:
     week-aligned itself; days before it are disabled in the calendar
     the normal Mantine way.
 
-- persisted_props (list of a value equal to: 'value's; default ['value']):
+- persisted_props (list of strings; default ['value']):
     Properties whose user interactions will persist after refreshing
     the component or the page.
 
-- persistence (boolean | string | number; default False):
+- persistence (string | number | boolean; default False):
     Used to allow user interactions in this component to be persisted
     when the component - or the page - is refreshed. If `persisted` is
     truthy and `persistence_type` is `session`, the value is persisted
@@ -125,7 +124,7 @@ Keyword arguments:
     `MantineProvider` theme - pass the same theme dict the host app
     uses here instead).
 
-- value (list of strings; default [None, None]):
+- value (list of strings; optional):
     `[startISO, endISO]`, both ISO `YYYY-MM-DD` and already
     week-aligned (Monday/Sunday), e.g. `[\"2026-06-01\",
     \"2026-06-07\"]`. `[startISO, None]` while a range is
@@ -158,7 +157,6 @@ Keyword arguments:
 
     def __init__(
         self,
-        id: typing.Optional[typing.Union[str, dict]] = None,
         value: typing.Optional[typing.Sequence[str]] = None,
         minDate: typing.Optional[str] = None,
         maxDate: typing.Optional[str] = None,
@@ -173,10 +171,11 @@ Keyword arguments:
         forceColorScheme: typing.Optional[Literal["light", "dark"]] = None,
         className: typing.Optional[str] = None,
         style: typing.Optional[typing.Any] = None,
-        loading_state: typing.Optional["LoadingState"] = None,
-        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
-        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
+        persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
+        persisted_props: typing.Optional[typing.Sequence[str]] = None,
         persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        loading_state: typing.Optional["LoadingState"] = None,
         **kwargs
     ):
         self._prop_names = ['id', 'className', 'clearable', 'closeOnChange', 'firstDayOfWeek', 'forceColorScheme', 'highlightToday', 'loading_state', 'maxDate', 'minDate', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'presets', 'style', 'theme', 'value', 'withWeekNumbers']

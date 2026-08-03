@@ -79,6 +79,15 @@ _js_dist.extend(
     ]
 )
 
+# tsx components have no runtime .propTypes (types are erased at compile time); dash-generate-components
+# emits proptypes.js to restore prop validation. dev_only=True: it's served only with debug=True, which
+# is exactly when the invalid-prop console warnings are useful. Requires window.PropTypes (dash-renderer).
+_js_dist.append(dict(
+    dev_package_path="proptypes.js",
+    dev_only=True,
+    namespace=package_name
+))
+
 _css_dist = []
 
 

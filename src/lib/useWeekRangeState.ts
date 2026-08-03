@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
+import { DateStringValue } from '@mantine/dates';
 import { isoWeekStart, isoWeekEnd, isInRange } from './dateUtils';
+
+export type WeekRangeValue = [DateStringValue | null, DateStringValue | null];
 
 /**
  * Range-selection state machine for a week-granularity calendar, adapted from the same shape as
@@ -10,13 +13,20 @@ import { isoWeekStart, isoWeekEnd, isInRange } from './dateUtils';
  * `value`/`onChange` are fully controlled by the caller (this component always receives a `value` prop
  * from Dash, so there's no separate uncontrolled mode to support here, unlike Mantine's own pickers).
  */
-export function useWeekRangeState(value, onChange) {
-    const _value = Array.isArray(value) ? value : [null, null];
+export function useWeekRangeState(
+    value: (DateStringValue | null)[] | undefined,
+    onChange: (value: WeekRangeValue) => void
+) {
+    const _value: WeekRangeValue = Array.isArray(value)
+        ? (value as WeekRangeValue)
+        : [null, null];
     const [start, end] = _value;
 
     // the week picked on the first click of a still-incomplete range ([start, null])
-    const [pickedWeekStart, setPickedWeekStart] = useState(start && !end ? start : null);
-    const [hoveredWeekStart, setHoveredWeekStart] = useState(null);
+    const [pickedWeekStart, setPickedWeekStart] = useState<DateStringValue | null>(
+        start && !end ? start : null
+    );
+    const [hoveredWeekStart, setHoveredWeekStart] = useState<DateStringValue | null>(null);
 
     // re-sync when `value` changes from the outside (preset click, clear button, or a completed range) -
     // mirrors Mantine's own useDatesState effect
@@ -26,7 +36,7 @@ export function useWeekRangeState(value, onChange) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [start, end]);
 
-    const handleDayClick = (date) => {
+    const handleDayClick = (date: DateStringValue) => {
         const weekStart = isoWeekStart(date);
         if (pickedWeekStart && !end) {
             const [lo, hi] = [pickedWeekStart, weekStart].sort();
@@ -37,7 +47,7 @@ export function useWeekRangeState(value, onChange) {
         onChange([weekStart, null]);
     };
 
-    const handleDayMouseEnter = (date) => {
+    const handleDayMouseEnter = (date: DateStringValue) => {
         if (pickedWeekStart && !end) {
             setHoveredWeekStart(isoWeekStart(date));
         }
@@ -48,7 +58,7 @@ export function useWeekRangeState(value, onChange) {
     // the range currently shown highlighted: the committed value, or - mid-selection - the picked week
     // alone (before any hover) or picked-week-to-hovered-week (ordered low-to-high, hover can go either
     // direction from the anchor)
-    const previewRange = () => {
+    const previewRange = (): WeekRangeValue => {
         if (start && end) {
             return [start, end];
         }
@@ -61,9 +71,13 @@ export function useWeekRangeState(value, onChange) {
         return [lo, isoWeekEnd(hi)];
     };
 
-    const getDayProps = (date) => {
+    const getDayProps = (date: DateStringValue) => {
         const [rangeStart, rangeEnd] = previewRange();
-        const inRange = !!(rangeStart && rangeEnd && isInRange(date, [rangeStart, rangeEnd]));
+        const inRange = !!(
+            rangeStart &&
+            rangeEnd &&
+            isInRange(date, [rangeStart, rangeEnd])
+        );
         // rangeStart/rangeEnd are always the exact Monday/Sunday anchors (never an arbitrary clicked
         // day), so plain equality - not "same ISO week" - is what picks out just the two boundary cells:
         // bold "selected" + sharp edge only on the Monday of the start week and the Sunday of the end

@@ -6,6 +6,7 @@ include dash_week_range_picker/*-shared.js
 include dash_week_range_picker/*-shared.js.map
 include dash_week_range_picker/metadata.json
 include dash_week_range_picker/package-info.json
+include dash_week_range_picker/proptypes.js
 include README.md
 include LICENSE
 include package.json

@@ -32,7 +32,7 @@ module.exports = (env, argv) => {
         filename = `${dashLibraryName}.${modeSuffix}.js`;
     }
 
-    const entry = overrides.entry || {main: './src/lib/index.js'};
+    const entry = overrides.entry || {main: './src/lib/index.ts'};
 
     // false, not 'source-map': SourceMapDevToolPlugin below already emits maps explicitly (with the
     // async-plotlyjs exclude); enabling both here AND there makes webpack try to emit two different
@@ -63,9 +63,21 @@ module.exports = (env, argv) => {
             }
         },
         externals,
+        resolve: {
+            extensions: ['.tsx', '.ts', '.jsx', '.js'],
+        },
         module: {
             rules: [
                 {
+                    // library source is TypeScript: ts-loader type-checks against Mantine's real .d.ts
+                    test: /\.tsx?$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: 'ts-loader',
+                    },
+                },
+                {
+                    // the demo app (src/demo) is still plain JS/JSX
                     test: /\.jsx?$/,
                     exclude: /node_modules/,
                     use: {
