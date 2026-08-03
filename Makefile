@@ -1,5 +1,6 @@
 .PHONY: help install build build-js build-backends dist check release publish \
-        demo serve watch kill-port bump-patch bump-minor bump-major version install-dev clean distclean
+        demo serve watch kill-port bump-patch bump-minor bump-major version commit-release \
+        install-dev clean distclean
 
 # override on the command line if needed, e.g. `make install-dev CONSUMER_VENV=../other-app/venv`
 VENV        ?= venv
@@ -26,6 +27,7 @@ help:
 	@echo "  kill-port        kill a leftover Dash server holding :$(PORT) (debug reloader orphans)"
 	@echo "  bump-patch/minor/major   bump package.json's version (no git commit/tag)"
 	@echo "  version          print the current package.json version"
+	@echo "  commit-release   git add -A + commit as vX.Y.Z (no tag, no push - push stays manual)"
 	@echo "  install-dev      pip install -e . into CONSUMER_VENV (default: $(CONSUMER_VENV))"
 	@echo "  clean            remove dist/build/egg-info artifacts"
 	@echo "  distclean        clean + remove node_modules"
@@ -103,6 +105,18 @@ bump-major:
 
 version:
 	@grep -m1 '"version"' package.json | grep -oE '[0-9]+\.[0-9]+\.[0-9]+'
+
+# Stage everything and commit as "vX.Y.Z" (version read from package.json). No git tag and no push -
+# pushing is deliberately left as manual work so release commits are never published by accident.
+# Note: this uses `git add -A`, so make sure the working tree holds only the release changes first.
+commit-release:
+	@ver=$$($(MAKE) --no-print-directory version); \
+	if [ -z "$$(git status --porcelain)" ]; then \
+		echo "Nothing to commit (working tree clean)."; \
+	else \
+		git add -A && git commit -m "v$$ver" && \
+		echo "Committed v$$ver. Push is manual when you're ready: git push"; \
+	fi
 
 # editable-install into a consuming app's own venv for local dev (set CONSUMER_VENV to its venv)
 install-dev:
