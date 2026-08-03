@@ -1,5 +1,5 @@
 .PHONY: help install build build-js build-backends dist check release publish \
-        demo serve watch kill-port bump-patch bump-minor bump-major version commit-release \
+        demo serve watch kill-port test bump-patch bump-minor bump-major version commit-release \
         install-dev clean distclean
 
 # override on the command line if needed, e.g. `make install-dev CONSUMER_VENV=../other-app/venv`
@@ -25,6 +25,7 @@ help:
 	@echo "  serve            webpack-dev-server live-reload playground (no Dash/Python involved)"
 	@echo "  watch            webpack --watch: rebuild the served min.js on save (pair with make demo)"
 	@echo "  kill-port        kill a leftover Dash server holding :$(PORT) (debug reloader orphans)"
+	@echo "  test             run the vitest unit suite (dateUtils + week-range state machine)"
 	@echo "  bump-patch/minor/major   bump package.json's version (no git commit/tag)"
 	@echo "  version          print the current package.json version"
 	@echo "  commit-release   git add -A + commit + annotated tag vX.Y.Z (no push; tag never forced)"
@@ -74,6 +75,9 @@ serve:
 
 watch:
 	npm run watch
+
+test:
+	npm test
 
 # Free the demo port if a previous `make demo` left a server behind. Dash's debug reloader runs a
 # parent + child, so killing by script name (pkill -f usage.py) misses one; target the port instead.

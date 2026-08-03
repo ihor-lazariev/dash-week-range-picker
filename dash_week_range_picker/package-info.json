@@ -1,6 +1,6 @@
 {
     "name": "dash_week_range_picker",
-    "version": "0.0.4",
+    "version": "0.1.0",
     "description": "Mantine-based ISO-week range picker for Dash",
     "main": "build/index.js",
     "scripts": {
@@ -12,6 +12,9 @@
         "build:backends-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:backends)",
         "build": "npm run build:js && npm run build:backends",
         "build:activated": "npm run build:js && npm run build:backends-activated",
+        "watch": "webpack --mode production --watch",
+        "test": "vitest run",
+        "test:watch": "vitest",
         "format": "prettier --write .",
         "format:check": "prettier --check ."
     },
@@ -34,6 +37,7 @@
         "@babel/preset-react": "^7.22.3",
         "@plotly/dash-component-plugins": "^1.2.3",
         "@plotly/webpack-dash-dynamic-import": "^1.2.0",
+        "@testing-library/react": "^16.0.0",
         "@types/react": "^18.2.0",
         "@types/react-dom": "^18.2.0",
         "babel-eslint": "^10.1.0",
@@ -52,6 +56,8 @@
         "style-loader": "^3.3.3",
         "ts-loader": "^9.5.1",
         "typescript": "^5.6.3",
+        "vitest": "^2.1.0",
+        "jsdom": "^25.0.0",
         "webpack": "^5.84.1",
         "webpack-cli": "^5.1.1",
         "webpack-dev-server": "^4.15.0"
