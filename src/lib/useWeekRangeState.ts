@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { DateStringValue } from '@mantine/dates';
-import { isoWeekStart, isoWeekEnd, isInRange } from './dateUtils';
+import {useEffect, useState} from 'react';
+import {DateStringValue} from '@mantine/dates';
+import {isInRange, isoWeekEnd, isoWeekStart} from './dateUtils';
 
 export type WeekRangeValue = [DateStringValue | null, DateStringValue | null];
 
@@ -23,10 +23,10 @@ export function useWeekRangeState(
     const [start, end] = _value;
 
     // the week picked on the first click of a still-incomplete range ([start, null])
-    const [pickedWeekStart, setPickedWeekStart] = useState<DateStringValue | null>(
-        start && !end ? start : null
-    );
-    const [hoveredWeekStart, setHoveredWeekStart] = useState<DateStringValue | null>(null);
+    const [pickedWeekStart, setPickedWeekStart] =
+        useState<DateStringValue | null>(start && !end ? start : null);
+    const [hoveredWeekStart, setHoveredWeekStart] =
+        useState<DateStringValue | null>(null);
 
     // re-sync when `value` changes from the outside (preset click, clear button, or a completed range) -
     // mirrors Mantine's own useDatesState effect
@@ -93,5 +93,5 @@ export function useWeekRangeState(
         };
     };
 
-    return { value: _value, getDayProps, onRootMouseLeave };
+    return {value: _value, getDayProps, onRootMouseLeave};
 }

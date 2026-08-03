@@ -7,6 +7,4 @@
 // defaults. The demo app (src/demo) imports these directly since it has no such host to rely on.
 import WeekRangePickerInput from './components/WeekRangePickerInput.react';
 
-export {
-    WeekRangePickerInput
-};
+export {WeekRangePickerInput};

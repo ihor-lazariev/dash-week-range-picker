@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import { DateStringValue } from '@mantine/dates';
+import {DateStringValue} from '@mantine/dates';
 
 // registered once at module load, not per-render/per-click
 dayjs.extend(isoWeek);

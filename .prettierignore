@@ -1,8 +1,13 @@
-# Dependencies / build output
+# Dependencies / build output (Prettier doesn't read .gitignore, so list these explicitly)
 node_modules/
 build/
 dist/
 *.egg-info/
+venv/
+.venv/
+__pycache__/
+.idea/
+.claude/
 
 # Lockfile
 package-lock.json

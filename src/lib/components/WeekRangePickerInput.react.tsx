@@ -1,14 +1,19 @@
-import React, { useRef } from 'react';
-import { MantineProvider, MantineThemeOverride, Box, UnstyledButton } from '@mantine/core';
+import React, {useRef} from 'react';
 import {
-    PickerInputBase,
+    Box,
+    MantineProvider,
+    MantineThemeOverride,
+    UnstyledButton,
+} from '@mantine/core';
+import {
     Calendar,
     CalendarLevel,
     DateStringValue,
+    PickerInputBase,
 } from '@mantine/dates';
-import { useDisclosure } from '@mantine/hooks';
-import { DashBaseProps } from '../props';
-import { useWeekRangeState } from '../useWeekRangeState';
+import {useDisclosure} from '@mantine/hooks';
+import {DashBaseProps} from '../props';
+import {useWeekRangeState} from '../useWeekRangeState';
 import './WeekRangePickerInput.css';
 
 interface Props extends DashBaseProps {
@@ -151,9 +156,11 @@ const WeekRangePickerInput = ({
 }: Props) => {
     const [dropdownOpened, dropdownHandlers] = useDisclosure(false);
 
-    const handleChange = (newValue: [DateStringValue | null, DateStringValue | null]) => {
+    const handleChange = (
+        newValue: [DateStringValue | null, DateStringValue | null]
+    ) => {
         if (setProps) {
-            setProps({ value: newValue });
+            setProps({value: newValue});
         }
         // mirrors Mantine's own useDatesInput: close only once both bounds of the range are set, not
         // on the first (mid-selection) click - PickerInputBase itself doesn't know about closeOnChange
@@ -164,10 +171,15 @@ const WeekRangePickerInput = ({
         }
     };
 
-    const { value: _value, getDayProps, onRootMouseLeave } = useWeekRangeState(value, handleChange);
+    const {
+        value: _value,
+        getDayProps,
+        onRootMouseLeave,
+    } = useWeekRangeState(value, handleChange);
     const [start, end] = _value;
 
-    const formattedValue = start && end ? `${start} – ${end}` : start ? `${start} – ` : null;
+    const formattedValue =
+        start && end ? `${start} – ${end}` : start ? `${start} – ` : null;
     const shouldClear = Boolean(clearable && (start || end));
 
     // Calendar exposes __setDateRef/__setLevelRef (via useImperativeHandle) specifically so a wrapping
@@ -177,8 +189,15 @@ const WeekRangePickerInput = ({
     const levelRef = useRef<((level: CalendarLevel) => void) | null>(null);
 
     const handlePresetClick = (presetValue?: string[]) => {
-        handleChange((presetValue ?? [null, null]) as [DateStringValue | null, DateStringValue | null]);
-        const jumpTo = Array.isArray(presetValue) ? presetValue[0] : presetValue;
+        handleChange(
+            (presetValue ?? [null, null]) as [
+                DateStringValue | null,
+                DateStringValue | null,
+            ]
+        );
+        const jumpTo = Array.isArray(presetValue)
+            ? presetValue[0]
+            : presetValue;
         if (jumpTo) {
             dateRef.current?.(jumpTo);
             levelRef.current?.('month');
@@ -205,12 +224,17 @@ const WeekRangePickerInput = ({
     );
 
     return (
-        <MantineProvider theme={theme as MantineThemeOverride} forceColorScheme={forceColorScheme}>
+        <MantineProvider
+            theme={theme as MantineThemeOverride}
+            forceColorScheme={forceColorScheme}
+        >
             <div
                 id={id as string}
                 className={className}
                 style={style as React.CSSProperties}
-                data-dash-is-loading={(loading_state && loading_state.is_loading) || undefined}
+                data-dash-is-loading={
+                    (loading_state && loading_state.is_loading) || undefined
+                }
             >
                 <PickerInputBase
                     type="range"
@@ -230,7 +254,9 @@ const WeekRangePickerInput = ({
                                     <UnstyledButton
                                         key={preset.label}
                                         className="wrp-preset-button"
-                                        onClick={() => handlePresetClick(preset.value)}
+                                        onClick={() =>
+                                            handlePresetClick(preset.value)
+                                        }
                                     >
                                         {preset.label}
                                     </UnstyledButton>

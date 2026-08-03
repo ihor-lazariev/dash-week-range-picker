@@ -6,7 +6,6 @@ const packagejson = require('./package.json');
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
 module.exports = (env, argv) => {
-
     let mode;
 
     const overrides = module.exports || {};
@@ -27,7 +26,7 @@ module.exports = (env, argv) => {
     }
 
     let filename = (overrides.output || {}).filename;
-    if(!filename) {
+    if (!filename) {
         const modeSuffix = mode === 'development' ? 'dev' : 'min';
         filename = `${dashLibraryName}.${modeSuffix}.js`;
     }
@@ -39,12 +38,15 @@ module.exports = (env, argv) => {
     // .map files under the same name ("Multiple assets emit different content to the same filename")
     const devtool = overrides.devtool || false;
 
-    const externals = ('externals' in overrides) ? overrides.externals : ({
-        react: 'React',
-        'react-dom': 'ReactDOM',
-        'plotly.js': 'Plotly',
-        'prop-types': 'PropTypes',
-    });
+    const externals =
+        'externals' in overrides
+            ? overrides.externals
+            : {
+                  react: 'React',
+                  'react-dom': 'ReactDOM',
+                  'plotly.js': 'Plotly',
+                  'prop-types': 'PropTypes',
+              };
 
     return {
         mode,
@@ -59,8 +61,8 @@ module.exports = (env, argv) => {
         devtool,
         devServer: {
             static: {
-                directory: path.join(__dirname, '/')
-            }
+                directory: path.join(__dirname, '/'),
+            },
         },
         externals,
         resolve: {
@@ -106,23 +108,23 @@ module.exports = (env, argv) => {
                         minSize: 0,
                         name(module, chunks, cacheGroupKey) {
                             return `${cacheGroupKey}-${chunks[0].name}`;
-                        }
+                        },
                     },
                     shared: {
                         chunks: 'all',
                         minSize: 0,
                         minChunks: 2,
-                        name: 'dash_week_range_picker-shared'
-                    }
-                }
-            }
+                        name: 'dash_week_range_picker-shared',
+                    },
+                },
+            },
         },
         plugins: [
             new WebpackDashDynamicImport(),
             new webpack.SourceMapDevToolPlugin({
                 filename: '[file].map',
-                exclude: ['async-plotlyjs']
-            })
-        ]
-    }
+                exclude: ['async-plotlyjs'],
+            }),
+        ],
+    };
 };
