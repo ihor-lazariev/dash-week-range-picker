@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { MantineProvider, Box, UnstyledButton } from '@mantine/core';
 import { PickerInputBase, Calendar } from '@mantine/dates';
@@ -63,8 +63,19 @@ const WeekRangePickerInput = ({
     const formattedValue = start && end ? `${start} – ${end}` : start ? `${start} – ` : null;
     const shouldClear = Boolean(clearable && (start || end));
 
+    // Calendar exposes __setDateRef/__setLevelRef (via useImperativeHandle) specifically so a wrapping
+    // component can jump its displayed month imperatively - this is exactly how Mantine's own DatePicker
+    // implements "clicking a preset navigates the view to it", not something Calendar does on its own
+    const dateRef = useRef(null);
+    const levelRef = useRef(null);
+
     const handlePresetClick = (presetValue) => {
         handleChange(presetValue);
+        const jumpTo = Array.isArray(presetValue) ? presetValue[0] : presetValue;
+        if (jumpTo) {
+            dateRef.current?.(jumpTo);
+            levelRef.current?.('month');
+        }
         if (closeOnChange) {
             dropdownHandlers.close();
         }
@@ -73,6 +84,8 @@ const WeekRangePickerInput = ({
     const hasPresets = presets && presets.length > 0;
     const calendar = (
         <Calendar
+            __setDateRef={dateRef}
+            __setLevelRef={levelRef}
             firstDayOfWeek={firstDayOfWeek}
             withWeekNumbers={withWeekNumbers}
             highlightToday={highlightToday}
