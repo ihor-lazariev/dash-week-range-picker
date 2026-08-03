@@ -4,6 +4,21 @@ Dash Week Range Picker is a Dash component library.
 
 Mantine-based ISO-week range picker for Dash
 
+## Requirement: a page that already loads Mantine 8.x base styles
+
+This component deliberately does **not** bundle `@mantine/core`/`@mantine/dates`'s own base CSS. It
+expects the host page to already have that stylesheet loaded - in practice, via
+[`dash-mantine-components`](https://pypi.org/project/dash-mantine-components/) (pinned to `8.3.18` to
+match), which any app using this component almost certainly already has. Shipping a second copy inside
+our own bundle would double-inject the same rules later in the page than the host's own copy, which
+silently wins the CSS cascade against any styling the host has customized on top of Mantine's defaults
+(this actually happened during development - a host app's own override of Mantine's week-number column
+styling was getting stomped by our redundant copy, loaded later at runtime).
+
+If you use this component in a page with no other Mantine-based library loaded, import the styles
+yourself once, e.g. `import '@mantine/core/styles.css'; import '@mantine/dates/styles.css';` in your own
+app - see `src/demo/index.js` for exactly this, since the standalone demo app has no such host to rely on.
+
 Get started with:
 1. Install Dash and its dependencies: https://dash.plotly.com/installation
 2. Run `python usage.py`
