@@ -1,0 +1,56 @@
+/* mirrors Mantine's own DatePicker presets sidebar exactly (its datePickerRoot/presetsList/presetButton
+   CSS module classes, read from node_modules/@mantine/dates/.../DatePicker.module.css.mjs) - we can't
+   import those directly (private, hashed, not part of the package's public exports), so the same rules
+   are reproduced here under our own plain class names instead of the generic Group/Stack/Button look */
+
+.wrp-presets-root {
+    display: flex;
+    font-size: var(--mantine-font-size-sm);
+}
+
+.wrp-presets-list {
+    display: flex;
+    flex-direction: column;
+    border-inline-end: calc(0.0625rem * var(--mantine-scale)) solid;
+    padding-inline-end: 0.5em;
+    margin-inline-end: 0.5em;
+}
+
+:where([data-mantine-color-scheme='light']) .wrp-presets-list {
+    border-color: var(--mantine-color-gray-2);
+}
+
+:where([data-mantine-color-scheme='dark']) .wrp-presets-list {
+    border-color: var(--mantine-color-dark-5);
+}
+
+.wrp-preset-button {
+    padding: 0.52em 0.8em;
+    border-radius: var(--mantine-radius-default);
+    font-size: var(--mantine-font-size-sm);
+    white-space: nowrap;
+    text-align: left;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+}
+
+@media (hover: hover) {
+    :where([data-mantine-color-scheme='light']) .wrp-preset-button:hover {
+        background-color: var(--mantine-color-gray-0);
+    }
+    :where([data-mantine-color-scheme='dark']) .wrp-preset-button:hover {
+        background-color: var(--mantine-color-dark-5);
+    }
+}
+
+@media (hover: none) {
+    :where([data-mantine-color-scheme='light']) .wrp-preset-button:active {
+        background-color: var(--mantine-color-gray-0);
+    }
+    :where([data-mantine-color-scheme='dark']) .wrp-preset-button:active {
+        background-color: var(--mantine-color-dark-5);
+    }
+}

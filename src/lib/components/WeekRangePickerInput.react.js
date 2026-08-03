@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { MantineProvider, Group, Stack, Button } from '@mantine/core';
+import { MantineProvider, Box, UnstyledButton } from '@mantine/core';
 import { PickerInputBase, Calendar } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { useWeekRangeState } from '../useWeekRangeState';
+import './WeekRangePickerInput.css';
 
 /**
  * WeekRangePickerInput - an ISO-week-granularity range picker (Mantine `Calendar` + `PickerInputBase`
@@ -69,6 +70,20 @@ const WeekRangePickerInput = ({
         }
     };
 
+    const hasPresets = presets && presets.length > 0;
+    const calendar = (
+        <Calendar
+            firstDayOfWeek={firstDayOfWeek}
+            withWeekNumbers={withWeekNumbers}
+            highlightToday={highlightToday}
+            minDate={minDate || undefined}
+            maxDate={maxDate || undefined}
+            defaultDate={start || undefined}
+            getDayProps={getDayProps}
+            onMouseLeave={onRootMouseLeave}
+        />
+    );
+
     return (
         <MantineProvider theme={theme} forceColorScheme={forceColorScheme}>
             <div
@@ -88,32 +103,24 @@ const WeekRangePickerInput = ({
                     clearable={clearable}
                     placeholder={placeholder}
                 >
-                    <Group align="flex-start" wrap="nowrap" gap={0}>
-                        {presets && presets.length > 0 && (
-                            <Stack gap={2} p="xs" style={{ borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+                    {hasPresets ? (
+                        <Box className="wrp-presets-root">
+                            <div className="wrp-presets-list">
                                 {presets.map((preset) => (
-                                    <Button
+                                    <UnstyledButton
                                         key={preset.label}
-                                        variant="subtle"
-                                        size="xs"
+                                        className="wrp-preset-button"
                                         onClick={() => handlePresetClick(preset.value)}
                                     >
                                         {preset.label}
-                                    </Button>
+                                    </UnstyledButton>
                                 ))}
-                            </Stack>
-                        )}
-                        <Calendar
-                            firstDayOfWeek={firstDayOfWeek}
-                            withWeekNumbers={withWeekNumbers}
-                            highlightToday={highlightToday}
-                            minDate={minDate || undefined}
-                            maxDate={maxDate || undefined}
-                            defaultDate={start || undefined}
-                            getDayProps={getDayProps}
-                            onMouseLeave={onRootMouseLeave}
-                        />
-                    </Group>
+                            </div>
+                            {calendar}
+                        </Box>
+                    ) : (
+                        calendar
+                    )}
                 </PickerInputBase>
             </div>
         </MantineProvider>
