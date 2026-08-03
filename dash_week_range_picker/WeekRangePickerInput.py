@@ -56,7 +56,7 @@ Keyword arguments:
     it would only desync the visual grid from that logic, not the
     weeks it actually selects.
 
-- forceColorScheme (a value equal to: 'light', 'dark'; default undefined):
+- forceColorScheme (a value equal to: 'light', 'dark'; optional):
     Forces a specific color scheme (\"light\" | \"dark\") on this
     component's own `MantineProvider`, independent of the host app's
     own scheme.

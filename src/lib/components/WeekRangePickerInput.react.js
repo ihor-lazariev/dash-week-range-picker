@@ -16,32 +16,43 @@ import { useWeekRangeState } from '../useWeekRangeState';
  * or `[null, null]` when empty - the same shape a Dash range DatePickerInput already emits, so it drops
  * into any callback written against `utils.dates.unpack_range`/`range_pending` unchanged.
  */
-const WeekRangePickerInput = (props) => {
-    const {
-        id,
-        value,
-        minDate,
-        maxDate,
-        presets,
-        placeholder,
-        clearable,
-        closeOnChange,
-        withWeekNumbers,
-        highlightToday,
-        firstDayOfWeek,
-        theme,
-        forceColorScheme,
-        className,
-        style,
-        loading_state,
-        setProps,
-    } = props;
-
+const WeekRangePickerInput = ({
+    id,
+    value = [null, null],
+    minDate = null,
+    maxDate = null,
+    presets = [],
+    placeholder = 'Select Period',
+    clearable = true,
+    closeOnChange = false,
+    withWeekNumbers = true,
+    highlightToday = true,
+    firstDayOfWeek = 1,
+    theme = {},
+    forceColorScheme,
+    className,
+    style,
+    loading_state,
+    setProps,
+    // not read in the component body - Dash's persistence engine reads these straight off
+    // propTypes/defaults, declared here (rather than a separate defaultProps block) only to avoid
+    // React 18's "defaultProps on function components is deprecated" warning
+    persistence = false, // eslint-disable-line no-unused-vars
+    persisted_props = ['value'], // eslint-disable-line no-unused-vars
+    persistence_type = 'local', // eslint-disable-line no-unused-vars
+}) => {
     const [dropdownOpened, dropdownHandlers] = useDisclosure(false);
 
     const handleChange = (newValue) => {
         if (setProps) {
             setProps({ value: newValue });
+        }
+        // mirrors Mantine's own useDatesInput: close only once both bounds of the range are set, not
+        // on the first (mid-selection) click - PickerInputBase itself doesn't know about closeOnChange
+        // (it's not one of its own props, just forwarded rest-props if passed to it, which React then
+        // warns about since they'd land on the underlying DOM button), so this component owns the timing
+        if (closeOnChange && newValue[0] && newValue[1]) {
+            dropdownHandlers.close();
         }
     };
 
@@ -76,7 +87,6 @@ const WeekRangePickerInput = (props) => {
                     shouldClear={shouldClear}
                     clearable={clearable}
                     placeholder={placeholder}
-                    closeOnChange={closeOnChange}
                 >
                     <Group align="flex-start" wrap="nowrap" gap={0}>
                         {presets && presets.length > 0 && (
@@ -108,24 +118,6 @@ const WeekRangePickerInput = (props) => {
             </div>
         </MantineProvider>
     );
-};
-
-WeekRangePickerInput.defaultProps = {
-    value: [null, null],
-    minDate: null,
-    maxDate: null,
-    presets: [],
-    placeholder: 'Select Period',
-    clearable: true,
-    closeOnChange: false,
-    withWeekNumbers: true,
-    highlightToday: true,
-    firstDayOfWeek: 1,
-    theme: {},
-    forceColorScheme: undefined,
-    persistence: false,
-    persisted_props: ['value'],
-    persistence_type: 'local',
 };
 
 WeekRangePickerInput.propTypes = {

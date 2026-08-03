@@ -1,6 +1,6 @@
 {
   "name": "dash_week_range_picker",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Mantine-based ISO-week range picker for Dash",
 
   "main": "build/index.js",
