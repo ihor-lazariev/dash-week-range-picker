@@ -1,0 +1,9 @@
+# Black default-excludes build/, dist/, venv/, .git/ etc. The extra force-exclude below covers the
+# Dash-generated Python wrappers: they carry "AUTO GENERATED FILE - DO NOT EDIT" and are rewritten by
+# `npm run build:backends`, so formatting them is churn the next build reverts. __init__.py is the only
+# hand-maintained module in the package dir (negative lookahead keeps it formattable).
+[tool.black]
+line-length = 88
+force-exclude = '''
+dash_week_range_picker/(?!__init__\.py)[^/]*\.py
+'''
