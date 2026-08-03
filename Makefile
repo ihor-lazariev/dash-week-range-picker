@@ -27,7 +27,7 @@ help:
 	@echo "  kill-port        kill a leftover Dash server holding :$(PORT) (debug reloader orphans)"
 	@echo "  bump-patch/minor/major   bump package.json's version (no git commit/tag)"
 	@echo "  version          print the current package.json version"
-	@echo "  commit-release   git add -A + commit as vX.Y.Z (no tag, no push - push stays manual)"
+	@echo "  commit-release   git add -A + commit + annotated tag vX.Y.Z (no push; tag never forced)"
 	@echo "  install-dev      pip install -e . into CONSUMER_VENV (default: $(CONSUMER_VENV))"
 	@echo "  clean            remove dist/build/egg-info artifacts"
 	@echo "  distclean        clean + remove node_modules"
@@ -106,16 +106,24 @@ bump-major:
 version:
 	@grep -m1 '"version"' package.json | grep -oE '[0-9]+\.[0-9]+\.[0-9]+'
 
-# Stage everything and commit as "vX.Y.Z" (version read from package.json). No git tag and no push -
-# pushing is deliberately left as manual work so release commits are never published by accident.
+# Stage everything, commit as "vX.Y.Z", and create an annotated tag v$$ver (version read from
+# package.json). No push - pushing is deliberately manual so release commits/tags are never published
+# by accident. The tag is created only if it doesn't already exist (never force-moved): an existing tag
+# means "already released this version, bump first". If you really need to move it pre-push, do the
+# deliberate step yourself: `git tag -f v$$ver`.
 # Note: this uses `git add -A`, so make sure the working tree holds only the release changes first.
 commit-release:
 	@ver=$$($(MAKE) --no-print-directory version); \
 	if [ -z "$$(git status --porcelain)" ]; then \
 		echo "Nothing to commit (working tree clean)."; \
 	else \
-		git add -A && git commit -m "v$$ver" && \
-		echo "Committed v$$ver. Push is manual when you're ready: git push"; \
+		git add -A && git commit -m "v$$ver"; \
+		if git rev-parse -q --verify "refs/tags/v$$ver" >/dev/null; then \
+			echo "Tag v$$ver already exists - left as-is (bump for a new release, or move it yourself: git tag -f v$$ver)."; \
+		else \
+			git tag -a "v$$ver" -m "v$$ver" && echo "Tagged v$$ver."; \
+		fi; \
+		echo "Committed v$$ver. Push is manual: git push && git push origin v$$ver"; \
 	fi
 
 # editable-install into a consuming app's own venv for local dev (set CONSUMER_VENV to its venv)
