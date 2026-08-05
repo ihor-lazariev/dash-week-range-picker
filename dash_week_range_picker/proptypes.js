@@ -4,6 +4,7 @@ var pt = window.PropTypes;
 var pk = window['dash_week_range_picker'];
 
 pk.WeekRangePickerInput.propTypes = {value:pt.arrayOf(pt.string),
+ mode:pt.oneOf(['single','range']),
  minDate:pt.string,
  maxDate:pt.string,
  presets:pt.arrayOf(pt.shape({label:pt.string,value:pt.arrayOf(pt.string)})),

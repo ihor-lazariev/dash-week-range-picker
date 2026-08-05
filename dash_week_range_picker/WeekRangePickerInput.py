@@ -30,6 +30,9 @@ arbitrary single day a normal date-range picker would give you.
 respectively, or `[startISO, null]` while a range is mid-selection (exactly one week picked so far),
 or `[null, null]` when empty - the same shape a Dash range DatePickerInput already emits, so it drops
 into any callback written against `utils.dates.unpack_range`/`range_pending` unchanged.
+`mode="single"` narrows the interaction to one week per click; the emitted value keeps the exact same
+`[startISO, endISO]` shape (a single week is just a range whose borders share a week), so `mode` can
+be switched without touching a single callback.
 
 Keyword arguments:
 
@@ -41,12 +44,13 @@ Keyword arguments:
     CSS class for the outer wrapper div.
 
 - clearable (boolean; default True):
-    Shows a clear button (resets value to `[None, None]`) once a range
-    is selected.
+    Shows a clear button (resets value to `[None, None]`) once
+    something is selected.
 
 - closeOnChange (boolean; default False):
-    Closes the calendar popover as soon as a range is completed (or a
-    preset is clicked).
+    Closes the calendar popover as soon as the selection is complete
+    (with `mode=\"single\"` that is the first click, with
+    `mode=\"range\"` the second one), or a preset is clicked.
 
 - firstDayOfWeek (number; default 1):
     0-6, where 1 = Monday. Do not change this - the
@@ -86,6 +90,17 @@ Keyword arguments:
     week-aligned itself; days before it are disabled in the calendar
     the normal Mantine way.
 
+- mode (a value equal to: 'single', 'range'; default 'range'):
+    Selection mode. `\"range\"` (default) takes two clicks, one per
+    border of the range; `\"single\"` commits the whole ISO week under
+    the cursor on the first click, and every later click replaces it
+    outright.  This constrains only how clicks *build* a value, not
+    what `value` is allowed to hold: nothing is ever auto-corrected. A
+    `value` (or a `presets` entry) spanning more than one week renders
+    as the range it honestly is under `mode=\"single\"`, and reaches
+    your callbacks unchanged - the next click simply replaces it with
+    a single week.
+
 - persisted_props (list of strings; default ['value']):
     Properties whose user interactions will persist after refreshing
     the component or the page.
@@ -103,13 +118,17 @@ Keyword arguments:
     (window.sessionStorage, data is cleared once the browser quit).
 
 - placeholder (string; default 'Select Period'):
-    Text shown in the input when no range is selected.
+    Text shown in the input when nothing is selected.
 
 - presets (list of dicts; optional):
     Quick-pick shortcuts shown to the left of the calendar, each
     `value` already a week-aligned `[startISO, endISO]` pair, e.g.
     `{\"label\": \"Last 12 Weeks\", \"value\": [\"2026-03-16\",
-    \"2026-06-07\"]}`.
+    \"2026-06-07\"]}`.  Preset values are passed through to `value`
+    verbatim, in both modes - a multi-week preset under
+    `mode=\"single\"` selects those weeks rather than being narrowed
+    to one or rejected, on the same \"the value is whatever you
+    configured\" principle as `value` itself.
 
     `presets` is a list of dicts with keys:
 
@@ -128,8 +147,11 @@ Keyword arguments:
     `[startISO, endISO]`, both ISO `YYYY-MM-DD` and already
     week-aligned (Monday/Sunday), e.g. `[\"2026-06-01\",
     \"2026-06-07\"]`. `[startISO, None]` while a range is
-    mid-selection (one week picked so far). `[None, None]` (or unset)
-    when empty.
+    mid-selection (one week picked so far, `mode=\"range\"` only).
+    `[None, None]` (or unset) when empty.  The shape is the same in
+    both modes - a single-week selection is just a range whose two
+    borders belong to the same week - so switching `mode` never
+    changes what a callback receives.
 
 - withWeekNumbers (boolean; default True):
     Shows the ISO week-number column next to the calendar grid."""
@@ -158,6 +180,7 @@ Keyword arguments:
     def __init__(
         self,
         value: typing.Optional[typing.Sequence[str]] = None,
+        mode: typing.Optional[Literal["single", "range"]] = None,
         minDate: typing.Optional[str] = None,
         maxDate: typing.Optional[str] = None,
         presets: typing.Optional[typing.Sequence["Presets"]] = None,
@@ -178,9 +201,9 @@ Keyword arguments:
         loading_state: typing.Optional["LoadingState"] = None,
         **kwargs
     ):
-        self._prop_names = ['id', 'className', 'clearable', 'closeOnChange', 'firstDayOfWeek', 'forceColorScheme', 'highlightToday', 'loading_state', 'maxDate', 'minDate', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'presets', 'style', 'theme', 'value', 'withWeekNumbers']
+        self._prop_names = ['id', 'className', 'clearable', 'closeOnChange', 'firstDayOfWeek', 'forceColorScheme', 'highlightToday', 'loading_state', 'maxDate', 'minDate', 'mode', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'presets', 'style', 'theme', 'value', 'withWeekNumbers']
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'className', 'clearable', 'closeOnChange', 'firstDayOfWeek', 'forceColorScheme', 'highlightToday', 'loading_state', 'maxDate', 'minDate', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'presets', 'style', 'theme', 'value', 'withWeekNumbers']
+        self.available_properties = ['id', 'className', 'clearable', 'closeOnChange', 'firstDayOfWeek', 'forceColorScheme', 'highlightToday', 'loading_state', 'maxDate', 'minDate', 'mode', 'persisted_props', 'persistence', 'persistence_type', 'placeholder', 'presets', 'style', 'theme', 'value', 'withWeekNumbers']
         self.available_wildcard_properties =            []
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
