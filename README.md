@@ -82,8 +82,8 @@ page to already have that stylesheet loaded - in practice, via
 [`dash-mantine-components`](https://pypi.org/project/dash-mantine-components/) (pinned to `8.3.18` to match), which any
 app using this component almost certainly already has. Shipping a second copy inside our own bundle would double-inject
 the same rules later in the page than the host's own copy, which silently wins the CSS cascade against any styling the
-host has customized on top of Mantine's defaults (this actually happened during development - a host app's own override
-of Mantine's week-number column styling was getting stomped by our redundant copy, loaded later at runtime).
+host has customized on top of Mantine's defaults - a host override of, say, the week-number column simply stops
+applying, with nothing to indicate why.
 
 If you use this component in a page with no other Mantine-based library loaded, import the styles yourself once, e.g.
 `import '@mantine/core/styles.css'; import '@mantine/dates/styles.css';` in your own app - see `src/demo/index.js` for
@@ -157,9 +157,9 @@ If you have selected install_dependencies during the prompt, you can skip this p
       port and drives the shipped bundle in a real browser, covering what unit tests structurally cannot - the
       portal-rendered popover, hover previews, the Dash callback round-trip, and that the page is actually
       styled. One-time setup is `make install-e2e`.
-    - There is deliberately no `dash[testing]`/selenium suite: those fixtures pin selenium to a urllib3<2 that
-      conflicts with twine's, so they could never share this venv with the build tooling. The e2e suite covers
-      the same ground without either.
+    - The e2e suite deliberately avoids `dash[testing]`: its fixtures pin selenium to a urllib3<2 that conflicts
+      with twine's, so they cannot share a venv with the build tooling. Starting the app over plain HTTP instead
+      covers the same ground with no such constraint.
     - The Dash team uses these types of integration tests extensively. Browse the Dash component code on GitHub for more
       examples of testing (e.g. https://github.com/plotly/dash-core-components)
 - Add custom styles to your component by putting your custom CSS files into your distribution folder

@@ -127,10 +127,9 @@
     }],
     "no-underscore-dangle": ["off"]
   },
-  // The base config above parses with babel-eslint, which does not understand TypeScript: every
-  // `as` cast is a syntax error to it, so before this override the whole of src/lib was reported
-  // as unparseable and therefore never actually linted. Anything .ts/.tsx goes through the
-  // TypeScript parser instead.
+  // The base config above parses with babel-eslint, which does not understand TypeScript - every
+  // `as` cast is a syntax error to it. Anything .ts/.tsx goes through the TypeScript parser
+  // instead, otherwise the whole of src/lib reports as unparseable and never gets linted at all.
   "overrides": [
     {
       "files": ["*.ts", "*.tsx"],

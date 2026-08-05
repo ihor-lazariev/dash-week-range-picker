@@ -186,18 +186,20 @@ const WeekRangePickerInput = ({
 }: Props) => {
     const [dropdownOpened, dropdownHandlers] = useDisclosure(false);
 
+    /**
+     * Reports a new value to Dash and closes the dropdown once the selection is complete.
+     *
+     * The close timing lives here because `PickerInputBase` has no `closeOnChange` prop of its own -
+     * passing one would just be forwarded to the underlying DOM button, which React warns about.
+     * "Complete" means both bounds are set, mirroring Mantine's own `useDatesInput`, and needs no
+     * `mode` branch: a single-mode click emits both bounds at once, so the same test covers it.
+     */
     const handleChange = (
         newValue: [DateStringValue | null, DateStringValue | null]
     ) => {
         if (setProps) {
             setProps({value: newValue});
         }
-        // mirrors Mantine's own useDatesInput: close only once both bounds of the range are set, not
-        // on the first (mid-selection) click - PickerInputBase itself doesn't know about closeOnChange
-        // (it's not one of its own props, just forwarded rest-props if passed to it, which React then
-        // warns about since they'd land on the underlying DOM button), so this component owns the timing.
-        // Needs no mode branch: a single-mode click emits both bounds at once, so "both bounds set" is
-        // already "the selection is complete" in either mode.
         if (closeOnChange && newValue[0] && newValue[1]) {
             dropdownHandlers.close();
         }
@@ -210,6 +212,9 @@ const WeekRangePickerInput = ({
     } = useWeekRangeState(value, handleChange, mode);
     const [start, end] = _value;
 
+    // the trailing dash on the middle case is the mid-selection state: one week picked, waiting for
+    // the second border. null (not '') so PickerInputBase shows the placeholder instead of an
+    // empty-looking input.
     const formattedValue =
         start && end ? `${start} – ${end}` : start ? `${start} – ` : null;
     const shouldClear = Boolean(clearable && (start || end));
@@ -220,6 +225,13 @@ const WeekRangePickerInput = ({
     const dateRef = useRef<((date: DateStringValue) => void) | null>(null);
     const levelRef = useRef<((level: CalendarLevel) => void) | null>(null);
 
+    /**
+     * Applies a preset: commit its value as-is, then scroll the calendar to where that value starts
+     * so the new selection is actually on screen, and honour `closeOnChange`.
+     *
+     * The value is passed through verbatim in both modes - a preset spanning several weeks under
+     * `mode="single"` selects those weeks rather than being narrowed (see the `presets` prop docs).
+     */
     const handlePresetClick = (presetValue?: string[]) => {
         handleChange(
             (presetValue ?? [null, null]) as [

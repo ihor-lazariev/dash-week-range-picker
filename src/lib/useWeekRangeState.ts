@@ -50,9 +50,17 @@ export function useWeekRangeState(
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [start, end]);
 
+    /**
+     * Commits a click on `date`, always as whole weeks.
+     *
+     * In single mode one click is the entire selection, and it replaces whatever was there before -
+     * including a wider range that came from a preset or straight off the `value` prop.
+     *
+     * In range mode a click either completes a half-picked range or starts a fresh one. Completing
+     * sorts the two anchors first, so clicking the earlier week second still yields an ordered pair;
+     * clicking again on an already-complete range restarts from that week.
+     */
     const handleDayClick = (date: DateStringValue) => {
-        // single: the first click is the entire selection, and it always replaces whatever was there -
-        // including a wider range that arrived from a preset or straight from the `value` prop
         if (isSingle) {
             onChange(isoWeekRange(date));
             return;
@@ -63,7 +71,6 @@ export function useWeekRangeState(
             onChange([lo, isoWeekEnd(hi)]);
             return;
         }
-        // fresh selection: nothing picked yet, or a previous complete range (clicking again restarts)
         onChange([weekStart, null]);
     };
 
@@ -82,21 +89,26 @@ export function useWeekRangeState(
     // of it, the committed value is never overwritten to begin with
     const onRootMouseLeave = () => setHoveredWeekStart(null);
 
-    // the range currently shown highlighted: the committed value, or - mid-selection - the picked week
-    // alone (before any hover) or picked-week-to-hovered-week (ordered low-to-high, hover can go either
-    // direction from the anchor)
+    /**
+     * The span to draw highlighted right now - a pure derived read, never stored.
+     *
+     * Single mode shows the hovered week while the cursor is over the grid, since that previews what
+     * a click would commit; otherwise it shows the committed value exactly as-is, however many weeks
+     * wide it happens to be. (A half-picked `[start, null]` can only reach single mode from outside,
+     * via a persisted range-mode value or a `mode` switch mid-selection, so it renders as that one
+     * week.)
+     *
+     * Range mode shows the committed range, or mid-selection the picked week stretched to whichever
+     * week is hovered - ordered low-to-high, because hover can go either direction from the anchor.
+     */
     const previewRange = (): WeekRangeValue => {
         if (isSingle) {
-            // the hovered week wins while the cursor is over the grid (it previews what a click would
-            // commit); otherwise the committed value shows exactly as-is, however wide it happens to be
             if (hoveredWeekStart) {
                 return isoWeekRange(hoveredWeekStart);
             }
             if (start && end) {
                 return [start, end];
             }
-            // a half-picked [start, null] can only arrive from the outside here (persisted range-mode
-            // value, or a mode switch mid-selection) - show it as the week it points at
             return start ? isoWeekRange(start) : [null, null];
         }
         if (start && end) {

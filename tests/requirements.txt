@@ -1,10 +1,7 @@
 # Packages needed to run the end-to-end suite (tests).
 #
-# Note what is NOT here: dash[testing]. Its fixtures (dash_duo and friends) are selenium-based,
-# and that selenium pin wants urllib3<2, which conflicts with twine's `id` in the same venv - so
-# it could never live alongside the build/publish tooling anyway. This suite starts the app
-# itself and talks to it over plain HTTP, so it needs neither dash.testing nor selenium and
-# installs cleanly next to everything else.
+# The suite starts usage.py itself and talks to it over plain HTTP, so it needs nothing from
+# dash[testing] and installs cleanly beside the build/publish tooling in the same venv.
 #
 #   make install-e2e   # pip install -r this file + playwright install chromium
 #   make test-e2e

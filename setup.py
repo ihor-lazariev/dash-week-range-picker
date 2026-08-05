@@ -1,3 +1,12 @@
+"""Packaging for PyPI.
+
+Everything identifying comes from package.json, which is the single place a version is ever
+edited by hand. Note it reads package.json, NOT the package-info.json copy shipped inside the
+wheel: that copy only refreshes when `npm run build:backends` runs, so bumping the version and
+building a wheel without rebuilding would produce a correctly-named wheel that reports the old
+version at runtime. Bump, then build, then package.
+"""
+
 import json
 from pathlib import Path
 

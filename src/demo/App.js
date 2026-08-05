@@ -1,4 +1,6 @@
 /* eslint no-magic-numbers: 0 */
+// The webpack playground (`npm start` / `make serve`): both modes side by side, with no Dash and no
+// Python involved, so a change to src/lib can be eyeballed on save. usage.py is the Dash equivalent.
 import React, {useState} from 'react';
 import dayjs from 'dayjs';
 

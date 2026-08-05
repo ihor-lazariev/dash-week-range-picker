@@ -33,7 +33,7 @@ WIDE_END = THIS_MONDAY - timedelta(days=1)
 
 
 class TestInitialRender:
-    """Takes over from the deleted dash.testing smoke test (both pickers mount, empty)."""
+    """Smoke test: both pickers mount and start empty."""
 
     def test_both_pickers_mount_empty_showing_their_placeholders(self, single, ranged):
         single.expect_value([None, None])
@@ -135,14 +135,18 @@ class TestRangeMode:
 
 
 class TestHostIntegration:
-    """The two things that had silently broken: no base CSS, and an ignored host theme."""
+    """The component ships no CSS and no theme of its own - both come from the host page.
+
+    Neither can fail loudly: without the stylesheet the picker still works and still emits
+    correct values, it just renders as unstyled HTML. These two assert on computed style so
+    that stays visible.
+    """
 
     def test_mantine_base_styles_are_loaded(self, single):
         single.open()
 
-        # Without the stylesheet the popover is an unstyled div - transparent, no radius.
-        # That is exactly how `make demo` looked before usage.py pulled in
-        # dash-mantine-components; drop that import and this test goes red (verified).
+        # an unstyled popover is a plain div: transparent, no radius. Drop the
+        # dash-mantine-components import from usage.py and this is what you get.
         styles = single.dropdown.evaluate(
             "el => { const s = getComputedStyle(el);"
             " return {bg: s.backgroundColor, radius: s.borderRadius}; }"

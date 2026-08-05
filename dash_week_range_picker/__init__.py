@@ -31,6 +31,9 @@ _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
 _this_module = _sys.modules[__name__]
 
+# Async (lazily-loaded) chunks, listed by name. This component has none - it is one small bundle -
+# so the two loops below iterate over nothing. Kept as the standard Dash component-suite scaffolding
+# for the day a chunk does get split out.
 async_resources = []
 
 _js_dist = []
@@ -49,7 +52,6 @@ _js_dist.extend(
     ]
 )
 
-# TODO: Figure out if unpkg link works
 _js_dist.extend(
     [
         {

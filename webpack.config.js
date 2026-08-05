@@ -8,6 +8,10 @@ const dashLibraryName = packagejson.name.replace(/-/g, '_');
 module.exports = (env, argv) => {
     let mode;
 
+    // Self-reference, not a mistake: a sibling config can `require` this file, assign fields onto
+    // the exported object, and re-export it (webpack.serve.config.js does exactly that). By the
+    // time webpack calls this function those assignments are already on module.exports, so reading
+    // them back here is how they get honoured - every setting below is "override, else default".
     const overrides = module.exports || {};
 
     // if user specified mode flag take that value
