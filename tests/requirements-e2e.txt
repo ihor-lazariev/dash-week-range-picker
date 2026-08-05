@@ -1,0 +1,15 @@
+# Packages needed to run the end-to-end suite (tests/e2e).
+#
+# Note what is NOT here: dash[testing]. Its fixtures (dash_duo and friends) are selenium-based,
+# and that selenium pin wants urllib3<2, which conflicts with twine's `id` in the same venv - so
+# it could never live alongside the build/publish tooling anyway. This suite starts the app
+# itself and talks to it over plain HTTP, so it needs neither dash.testing nor selenium and
+# installs cleanly next to everything else.
+#
+#   make install-e2e   # pip install -r this file + playwright install chromium
+#   make test-e2e
+#
+# `playwright install chromium` is required once - the pip package ships no browser binary.
+
+pytest>=8.0
+pytest-playwright>=0.5

@@ -91,11 +91,16 @@ exactly this, since the standalone demo app has no such host to rely on.
 
 Both demos in this repo have to play that host role themselves, and each does it the way its own stack would:
 `src/demo/index.js` (the webpack playground, `make serve`) imports the two stylesheets directly, while `usage.py` (the
-Dash app, `make demo`) renders a `dmc.MantineProvider`, which pulls the same stylesheet in from
-`dash-mantine-components`'s own bundle. Note that _importing_ dmc is not enough there - Dash serves a component suite's
-assets only once a component from that suite is actually in the layout. `dash-mantine-components` is therefore in
-`requirements.txt` (demo-only); the published package's `install_requires` stays empty, since any Mantine 8.x host will
-do.
+Dash app, `make demo`) gets them from `dash-mantine-components`, which carries that stylesheet inside its own JS bundle.
+
+On the Dash side, `import dash_mantine_components` is by itself enough to load it: Dash serves the assets of every
+namespace in its `ComponentRegistry`, and a namespace registers at _import_ time, when the component metaclass defines
+the generated classes. You do not need a dmc component in the layout. `usage.py` renders a `dmc.MantineProvider` anyway,
+because that is what a real host app does (it sets the page-level theme) and it keeps the import a genuine use rather
+than an import-for-side-effect.
+
+`dash-mantine-components` is therefore in `requirements.txt` as a demo-only dependency; the published package's
+`install_requires` stays empty, since any Mantine 8.x host will do.
 
 Get started with:
 
@@ -128,9 +133,9 @@ If you have selected install_dependencies during the prompt, you can skip this p
     ```
     $ pip install -r requirements.txt
     ```
-4. Install the python packages for testing (optional)
+4. Install the python packages for the end-to-end tests (optional)
     ```
-    $ pip install -r tests/requirements.txt
+    $ make install-e2e
     ```
 
 ### Write your component code in `src/lib/components/DashWeekRangePicker.react.js`.
@@ -146,9 +151,15 @@ If you have selected install_dependencies during the prompt, you can skip this p
         $ python usage.py
         ```
 - Write tests for your component.
-    - A sample test is available in `tests/test_usage.py`, it will load `usage.py` and you can then automate
-      interactions with selenium.
-    - Run the tests with `$ pytest tests`.
+    - Logic lives in `src/lib/*.test.ts` (vitest, `make test`) - the ISO-week snapping and the selection state
+      machine, with no browser involved.
+    - End-to-end behaviour lives in `tests/e2e` (Playwright, `make test-e2e`): it starts `usage.py` on a free
+      port and drives the shipped bundle in a real browser, covering what unit tests structurally cannot - the
+      portal-rendered popover, hover previews, the Dash callback round-trip, and that the page is actually
+      styled. One-time setup is `make install-e2e`.
+    - There is deliberately no `dash[testing]`/selenium suite: those fixtures pin selenium to a urllib3<2 that
+      conflicts with twine's, so they could never share this venv with the build tooling. The e2e suite covers
+      the same ground without either.
     - The Dash team uses these types of integration tests extensively. Browse the Dash component code on GitHub for more
       examples of testing (e.g. https://github.com/plotly/dash-core-components)
 - Add custom styles to your component by putting your custom CSS files into your distribution folder

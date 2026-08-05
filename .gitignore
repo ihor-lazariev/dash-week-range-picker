@@ -29,6 +29,12 @@ yarn-error.log*
 htmlcov/
 coverage/
 
+# Playwright (traces/screenshots/video kept on failure, plus its HTML report)
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # Editors / IDEs (kept fully out; .idea's own template ignore leaks committed files)
 .idea/
 .vscode/

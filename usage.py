@@ -7,18 +7,26 @@ import dash_week_range_picker
 
 app = Dash(__name__)
 
-# This component ships no Mantine base CSS of its own (see README), so it renders
-# as unstyled raw HTML unless the page already loads that stylesheet. Here usage.py
-# IS the host, so it has to supply it - and the way a real Dash app does that is by
-# rendering dash-mantine-components, which carries the stylesheet inside its own JS
-# bundle. Importing dmc is NOT enough on its own: Dash serves a component suite's
-# assets only when a component from that suite is actually in the layout, so the
-# MantineProvider below is what pulls the CSS in, not the import.
+# This component ships no Mantine base CSS of its own (see README), so it renders as
+# unstyled raw HTML unless the page already loads that stylesheet. usage.py IS the host
+# here, and it gets that stylesheet from dash-mantine-components, which carries it inside
+# its own JS bundle.
 #
-# The same theme dict also goes to the picker's own `theme` prop on purpose: the
-# component nests its own private MantineProvider (it bundles its own @mantine/core
-# copy), so it does NOT inherit this one. That's the easy mistake to make, and
-# mirroring the real integration here keeps it visible.
+# Note what actually pulls it in: the `import` above, not the MantineProvider below. Dash
+# serves the assets of every namespace in its ComponentRegistry, and namespaces register at
+# import time - the component metaclass adds them as the generated classes are defined
+# (dash/development/base_component.py). Merely importing dmc is therefore enough, which
+# tests/e2e/test_week_picker.py pins down: removing the provider keeps the page styled,
+# removing the import does not.
+#
+# The provider stays anyway, for two honest reasons: it is what a real host app does (it
+# sets the page-level theme), and it keeps the import a genuine use rather than an
+# import-for-side-effect that a linter would offer to strip.
+#
+# The same theme dict also goes to each picker's own `theme` prop on purpose: the component
+# nests its own private MantineProvider (it bundles its own @mantine/core copy), so it does
+# NOT inherit this one. That's the easy mistake to make, and mirroring the real integration
+# here keeps it visible.
 MANTINE_THEME = {"primaryColor": "indigo"}
 
 TODAY = date.today()
