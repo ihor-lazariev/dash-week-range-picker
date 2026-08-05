@@ -153,7 +153,7 @@ If you have selected install_dependencies during the prompt, you can skip this p
 - Write tests for your component.
     - Logic lives in `src/lib/*.test.ts` (vitest, `make test`) - the ISO-week snapping and the selection state
       machine, with no browser involved.
-    - End-to-end behaviour lives in `tests/e2e` (Playwright, `make test-e2e`): it starts `usage.py` on a free
+    - End-to-end behaviour lives in `tests` (Playwright, `make test-e2e`): it starts `usage.py` on a free
       port and drives the shipped bundle in a real browser, covering what unit tests structurally cannot - the
       portal-rendered popover, hover previews, the Dash callback round-trip, and that the page is actually
       styled. One-time setup is `make install-e2e`.

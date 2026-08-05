@@ -16,6 +16,11 @@ import {DashBaseProps} from '../props';
 import {useWeekRangeState} from '../useWeekRangeState';
 import './WeekRangePickerInput.css';
 
+// Mantine's own type for the prop. Kept as a local alias used only at the JSX boundary - the public
+// `firstDayOfWeek` prop below stays a plain `number`, because Dash's extract-meta shape-enumerates
+// anything richer and chokes on it.
+type FirstDayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 interface Props extends DashBaseProps {
     /**
      * `[startISO, endISO]`, both ISO `YYYY-MM-DD` and already week-aligned (Monday/Sunday), e.g.
@@ -239,7 +244,7 @@ const WeekRangePickerInput = ({
         <Calendar
             __setDateRef={dateRef}
             __setLevelRef={levelRef}
-            firstDayOfWeek={firstDayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6}
+            firstDayOfWeek={firstDayOfWeek as FirstDayOfWeek}
             withWeekNumbers={withWeekNumbers}
             highlightToday={highlightToday}
             minDate={minDate || undefined}

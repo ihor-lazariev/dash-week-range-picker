@@ -1,4 +1,4 @@
-.PHONY: help install install-e2e build build-js build-backends dist check release publish \
+.PHONY: help install install-e2e lint build build-js build-backends dist check release publish \
         demo serve watch kill-port test test-e2e bump-patch bump-minor bump-major version \
         commit-release install-dev clean distclean
 
@@ -25,6 +25,7 @@ help:
 	@echo "  serve            webpack-dev-server live-reload playground (no Dash/Python involved)"
 	@echo "  watch            webpack --watch: rebuild the served min.js on save (pair with make demo)"
 	@echo "  kill-port        kill a leftover Dash server holding :$(PORT) (debug reloader orphans)"
+	@echo "  lint             eslint over src (JS + TS)"
 	@echo "  test             run the vitest unit suite (dateUtils + week-range state machine)"
 	@echo "  test-e2e         run the Playwright end-to-end suite against a real usage.py"
 	@echo "  install-e2e      pip install the e2e suite's deps + its browser (one-off)"
@@ -81,16 +82,19 @@ watch:
 test:
 	npm test
 
+lint:
+	npm run lint
+
 # End-to-end suite: Python -> Dash -> the built bundle -> a real browser. Starts its own usage.py
 # on a free port (so a running `make demo` is fine) and drives the shipped min.js, so run
 # `make build` first if you changed anything under src/.
 test-e2e:
-	$(PYTHON) -m pytest tests/e2e
+	$(PYTHON) -m pytest tests
 
 # One-off setup for `make test-e2e`. The pip package ships no browser binary, so the
 # `playwright install` step is required, not optional.
 install-e2e:
-	$(PYTHON) -m pip install -r tests/requirements-e2e.txt
+	$(PYTHON) -m pip install -r tests/requirements.txt
 	$(PYTHON) -m playwright install chromium
 
 # Free the demo port if a previous `make demo` left a server behind. Dash's debug reloader runs a

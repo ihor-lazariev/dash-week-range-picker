@@ -113,10 +113,8 @@ export function useWeekRangeState(
 
     const getDayProps = (date: DateStringValue) => {
         const [rangeStart, rangeEnd] = previewRange();
-        const inRange = !!(
-            rangeStart &&
-            rangeEnd &&
-            isInRange(date, [rangeStart, rangeEnd])
+        const inRange = Boolean(
+            rangeStart && rangeEnd && isInRange(date, [rangeStart, rangeEnd])
         );
         // rangeStart/rangeEnd are always the exact Monday/Sunday anchors (never an arbitrary clicked
         // day), so plain equality - not "same ISO week" - is what picks out just the two boundary cells:

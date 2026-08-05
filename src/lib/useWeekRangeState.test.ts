@@ -33,7 +33,8 @@ describe('useWeekRangeState', () => {
         const {result} = renderHook(() =>
             useWeekRangeState([null, null], onChange)
         );
-        click(result, '2026-06-03'); // Wed of week A
+        // Wed of week A
+        click(result, '2026-06-03');
         expect(onChange).toHaveBeenCalledTimes(1);
         expect(onChange).toHaveBeenCalledWith(['2026-06-01', null]);
     });
@@ -44,7 +45,8 @@ describe('useWeekRangeState', () => {
         const {result} = renderHook(() =>
             useWeekRangeState(['2026-06-01', null], onChange)
         );
-        click(result, '2026-06-10'); // Wed of week B
+        // Wed of week B
+        click(result, '2026-06-10');
         expect(onChange).toHaveBeenCalledWith(['2026-06-01', '2026-06-14']);
     });
 
@@ -54,7 +56,8 @@ describe('useWeekRangeState', () => {
         const {result} = renderHook(() =>
             useWeekRangeState(['2026-06-08', null], onChange)
         );
-        click(result, '2026-06-03'); // Wed of week A (earlier than anchor)
+        // Wed of week A (earlier than anchor)
+        click(result, '2026-06-03');
         // start snaps to the earlier Monday, end to the later week's Sunday
         expect(onChange).toHaveBeenCalledWith(['2026-06-01', '2026-06-14']);
     });
@@ -64,7 +67,8 @@ describe('useWeekRangeState', () => {
         const {result} = renderHook(() =>
             useWeekRangeState(['2026-06-01', '2026-06-14'], onChange)
         );
-        click(result, '2026-07-01'); // Wed of week C
+        // Wed of week C
+        click(result, '2026-07-01');
         expect(onChange).toHaveBeenCalledWith(['2026-06-29', null]);
     });
 
@@ -81,7 +85,8 @@ describe('useWeekRangeState', () => {
         expect(end.lastInRange).toBe(true);
         expect(end.selected).toBe(true);
         expect(middle.inRange).toBe(true);
-        expect(middle.selected).toBe(false); // in the band, but not a boundary
+        // in the band, but not a boundary
+        expect(middle.selected).toBe(false);
     });
 
     it('does not preview on hover once a range is complete (only mid-selection does)', () => {
@@ -89,7 +94,8 @@ describe('useWeekRangeState', () => {
         const {result} = renderHook(() =>
             useWeekRangeState(['2026-06-01', '2026-06-14'], onChange)
         );
-        hover(result, '2026-07-01'); // week C, far outside the committed range
+        // week C, far outside the committed range
+        hover(result, '2026-07-01');
         expect(result.current.getDayProps('2026-06-29').inRange).toBe(false);
         expect(result.current.getDayProps('2026-06-08').inRange).toBe(true);
     });
@@ -101,7 +107,8 @@ describe('useWeekRangeState - single mode', () => {
         const {result} = renderHook(() =>
             useWeekRangeState([null, null], onChange, 'single')
         );
-        click(result, '2026-06-03'); // Wed of week A
+        // Wed of week A
+        click(result, '2026-06-03');
         expect(onChange).toHaveBeenCalledTimes(1);
         expect(onChange).toHaveBeenCalledWith(['2026-06-01', '2026-06-07']);
     });
@@ -111,7 +118,8 @@ describe('useWeekRangeState - single mode', () => {
         const {result} = renderHook(() =>
             useWeekRangeState(['2026-06-01', '2026-06-07'], onChange, 'single')
         );
-        click(result, '2026-06-10'); // Wed of week B
+        // Wed of week B
+        click(result, '2026-06-10');
         // range mode would have grown this into 2026-06-01..2026-06-14; single mode swaps the week
         expect(onChange).toHaveBeenCalledWith(['2026-06-08', '2026-06-14']);
     });
@@ -121,10 +129,12 @@ describe('useWeekRangeState - single mode', () => {
         const {result} = renderHook(() =>
             useWeekRangeState(['2026-06-01', '2026-06-07'], onChange, 'single')
         );
-        hover(result, '2026-06-10'); // week B
+        // week B
+        hover(result, '2026-06-10');
         expect(result.current.getDayProps('2026-06-08').inRange).toBe(true);
         expect(result.current.getDayProps('2026-06-01').inRange).toBe(false);
-        expect(onChange).not.toHaveBeenCalled(); // hover is local state only, never a setProps
+        // hover is local state only, never a setProps
+        expect(onChange).not.toHaveBeenCalled();
 
         leave(result);
         expect(result.current.getDayProps('2026-06-01').inRange).toBe(true);
@@ -144,8 +154,8 @@ describe('useWeekRangeState - single mode', () => {
         expect(result.current.getDayProps('2026-06-21').lastInRange).toBe(true);
         expect(onChange).not.toHaveBeenCalled();
 
-        // ...and the next click quietly brings it back to a single week
-        click(result, '2026-07-01'); // Wed of week C
+        // ...and the next click (Wed of week C) brings it back to a single week
+        click(result, '2026-07-01');
         expect(onChange).toHaveBeenCalledWith(['2026-06-29', '2026-07-05']);
     });
 });

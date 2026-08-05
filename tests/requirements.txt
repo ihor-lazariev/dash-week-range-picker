@@ -1,4 +1,4 @@
-# Packages needed to run the end-to-end suite (tests/e2e).
+# Packages needed to run the end-to-end suite (tests).
 #
 # Note what is NOT here: dash[testing]. Its fixtures (dash_duo and friends) are selenium-based,
 # and that selenium pin wants urllib3<2, which conflicts with twine's `id` in the same venv - so

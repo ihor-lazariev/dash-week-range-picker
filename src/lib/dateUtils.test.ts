@@ -4,7 +4,8 @@ import {isoWeekStart, isoWeekEnd, isoWeekRange, isInRange} from './dateUtils';
 // Reference week used across tests: Mon 2026-06-01 .. Sun 2026-06-07 (2026-06-01 is a Monday).
 describe('isoWeekStart', () => {
     it('snaps a mid-week day back to that ISO week Monday', () => {
-        expect(isoWeekStart('2026-06-03')).toBe('2026-06-01'); // Wed -> Mon
+        // Wed -> Mon
+        expect(isoWeekStart('2026-06-03')).toBe('2026-06-01');
     });
 
     it('returns the same date when already a Monday', () => {
@@ -23,7 +24,8 @@ describe('isoWeekStart', () => {
 
 describe('isoWeekEnd', () => {
     it('snaps a mid-week day forward to that ISO week Sunday', () => {
-        expect(isoWeekEnd('2026-06-03')).toBe('2026-06-07'); // Wed -> Sun
+        // Wed -> Sun
+        expect(isoWeekEnd('2026-06-03')).toBe('2026-06-07');
     });
 
     it('returns the same date when already a Sunday', () => {
@@ -62,8 +64,10 @@ describe('isInRange', () => {
 
     it('is true inside the range and inclusive on both bounds', () => {
         expect(isInRange('2026-06-03', range)).toBe(true);
-        expect(isInRange('2026-06-01', range)).toBe(true); // start inclusive
-        expect(isInRange('2026-06-07', range)).toBe(true); // end inclusive
+        // start inclusive
+        expect(isInRange('2026-06-01', range)).toBe(true);
+        // end inclusive
+        expect(isInRange('2026-06-07', range)).toBe(true);
     });
 
     it('is false just outside either bound', () => {

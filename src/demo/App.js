@@ -35,7 +35,8 @@ const SINGLE_PRESETS = [
 ];
 
 const MIN_DATE = weekOf(-52)[0];
-const MAX_DATE = weekOf(0)[1]; // end of the current week
+// end of the current week
+const MAX_DATE = weekOf(0)[1];
 
 const App = () => {
     const [rangeValue, setRangeValue] = useState([null, null]);

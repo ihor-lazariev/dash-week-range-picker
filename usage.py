@@ -16,7 +16,7 @@ app = Dash(__name__)
 # serves the assets of every namespace in its ComponentRegistry, and namespaces register at
 # import time - the component metaclass adds them as the generated classes are defined
 # (dash/development/base_component.py). Merely importing dmc is therefore enough, which
-# tests/e2e/test_week_picker.py pins down: removing the provider keeps the page styled,
+# tests/test_week_picker.py pins down: removing the provider keeps the page styled,
 # removing the import does not.
 #
 # The provider stays anyway, for two honest reasons: it is what a real host app does (it
