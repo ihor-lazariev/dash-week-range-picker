@@ -20,9 +20,24 @@ interface Props extends DashBaseProps {
     /**
      * `[startISO, endISO]`, both ISO `YYYY-MM-DD` and already week-aligned (Monday/Sunday), e.g.
      * `["2026-06-01", "2026-06-07"]`. `[startISO, null]` while a range is mid-selection (one week
-     * picked so far). `[null, null]` (or unset) when empty.
+     * picked so far, `mode="range"` only). `[null, null]` (or unset) when empty.
+     *
+     * The shape is the same in both modes - a single-week selection is just a range whose two borders
+     * belong to the same week - so switching `mode` never changes what a callback receives.
      */
     value?: string[];
+
+    /**
+     * Selection mode. `"range"` (default) takes two clicks, one per border of the range; `"single"`
+     * commits the whole ISO week under the cursor on the first click, and every later click replaces
+     * it outright.
+     *
+     * This constrains only how clicks *build* a value, not what `value` is allowed to hold: nothing is
+     * ever auto-corrected. A `value` (or a `presets` entry) spanning more than one week renders as the
+     * range it honestly is under `mode="single"`, and reaches your callbacks unchanged - the next click
+     * simply replaces it with a single week.
+     */
+    mode?: 'single' | 'range';
 
     /**
      * Earliest selectable date, ISO `YYYY-MM-DD`. Does not need to be week-aligned itself; days before
@@ -38,6 +53,10 @@ interface Props extends DashBaseProps {
     /**
      * Quick-pick shortcuts shown to the left of the calendar, each `value` already a week-aligned
      * `[startISO, endISO]` pair, e.g. `{"label": "Last 12 Weeks", "value": ["2026-03-16", "2026-06-07"]}`.
+     *
+     * Preset values are passed through to `value` verbatim, in both modes - a multi-week preset under
+     * `mode="single"` selects those weeks rather than being narrowed to one or rejected, on the same
+     * "the value is whatever you configured" principle as `value` itself.
      */
     presets?: Array<{
         label?: string;
@@ -45,17 +64,18 @@ interface Props extends DashBaseProps {
     }>;
 
     /**
-     * Text shown in the input when no range is selected.
+     * Text shown in the input when nothing is selected.
      */
     placeholder?: string;
 
     /**
-     * Shows a clear button (resets value to `[null, null]`) once a range is selected.
+     * Shows a clear button (resets value to `[null, null]`) once something is selected.
      */
     clearable?: boolean;
 
     /**
-     * Closes the calendar popover as soon as a range is completed (or a preset is clicked).
+     * Closes the calendar popover as soon as the selection is complete (with `mode="single"` that is
+     * the first click, with `mode="range"` the second one), or a preset is clicked.
      */
     closeOnChange?: boolean;
 
@@ -129,10 +149,15 @@ interface Props extends DashBaseProps {
  * respectively, or `[startISO, null]` while a range is mid-selection (exactly one week picked so far),
  * or `[null, null]` when empty - the same shape a Dash range DatePickerInput already emits, so it drops
  * into any callback written against `utils.dates.unpack_range`/`range_pending` unchanged.
+
+ * `mode="single"` narrows the interaction to one week per click; the emitted value keeps the exact same
+ * `[startISO, endISO]` shape (a single week is just a range whose borders share a week), so `mode` can
+ * be switched without touching a single callback.
  */
 const WeekRangePickerInput = ({
     id,
     value,
+    mode = 'range',
     minDate,
     maxDate,
     presets = [],
@@ -165,7 +190,9 @@ const WeekRangePickerInput = ({
         // mirrors Mantine's own useDatesInput: close only once both bounds of the range are set, not
         // on the first (mid-selection) click - PickerInputBase itself doesn't know about closeOnChange
         // (it's not one of its own props, just forwarded rest-props if passed to it, which React then
-        // warns about since they'd land on the underlying DOM button), so this component owns the timing
+        // warns about since they'd land on the underlying DOM button), so this component owns the timing.
+        // Needs no mode branch: a single-mode click emits both bounds at once, so "both bounds set" is
+        // already "the selection is complete" in either mode.
         if (closeOnChange && newValue[0] && newValue[1]) {
             dropdownHandlers.close();
         }
@@ -175,7 +202,7 @@ const WeekRangePickerInput = ({
         value: _value,
         getDayProps,
         onRootMouseLeave,
-    } = useWeekRangeState(value, handleChange);
+    } = useWeekRangeState(value, handleChange, mode);
     const [start, end] = _value;
 
     const formattedValue =
@@ -237,7 +264,12 @@ const WeekRangePickerInput = ({
                 }
             >
                 <PickerInputBase
-                    type="range"
+                    // Mantine's own vocabulary for "one value", not ours - PickerInputBase uses `type`
+                    // only to decide whether a half-set value ([start, null]) counts as an invalid
+                    // range and should get error styling, which single mode must never show since it
+                    // can't produce that state itself. Kept as an internal detail: our public `mode`
+                    // deliberately drops Mantine's "default"/"multiple" names.
+                    type={mode === 'single' ? 'default' : 'range'}
                     value={_value}
                     formattedValue={formattedValue}
                     dropdownOpened={dropdownOpened}

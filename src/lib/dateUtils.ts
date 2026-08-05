@@ -19,6 +19,15 @@ export function isoWeekEnd(date: DateStringValue): DateStringValue {
     return dayjs(date).endOf('isoWeek').format(ISO_FORMAT);
 }
 
+// the whole ISO week containing `date`, as the same [Monday, Sunday] pair every value in this
+// component is expressed in - a single-week selection is just a range whose two borders happen to
+// belong to the same week, which is why single mode needs no separate value shape
+export function isoWeekRange(
+    date: DateStringValue
+): [DateStringValue, DateStringValue] {
+    return [isoWeekStart(date), isoWeekEnd(date)];
+}
+
 // plain ISO-string comparison - 'YYYY-MM-DD' sorts lexicographically the same as chronologically
 export function isInRange(
     date: DateStringValue,

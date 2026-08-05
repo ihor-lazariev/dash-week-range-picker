@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {isoWeekStart, isoWeekEnd, isInRange} from './dateUtils';
+import {isoWeekStart, isoWeekEnd, isoWeekRange, isInRange} from './dateUtils';
 
 // Reference week used across tests: Mon 2026-06-01 .. Sun 2026-06-07 (2026-06-01 is a Monday).
 describe('isoWeekStart', () => {
@@ -32,6 +32,28 @@ describe('isoWeekEnd', () => {
 
     it('handles the ISO year boundary', () => {
         expect(isoWeekEnd('2026-01-01')).toBe('2026-01-04');
+    });
+});
+
+describe('isoWeekRange', () => {
+    it('expands any day into its whole [Monday, Sunday] week', () => {
+        expect(isoWeekRange('2026-06-03')).toEqual([
+            '2026-06-01',
+            '2026-06-07',
+        ]);
+    });
+
+    it('gives the same pair for every day of that week (Monday and Sunday included)', () => {
+        const week = ['2026-06-01', '2026-06-07'];
+        expect(isoWeekRange('2026-06-01')).toEqual(week);
+        expect(isoWeekRange('2026-06-07')).toEqual(week);
+    });
+
+    it('handles the ISO year boundary', () => {
+        expect(isoWeekRange('2026-01-01')).toEqual([
+            '2025-12-29',
+            '2026-01-04',
+        ]);
     });
 });
 

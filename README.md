@@ -4,6 +4,77 @@ Dash Week Range Picker is a Dash component library.
 
 Mantine-based ISO-week range picker for Dash
 
+## Usage
+
+```python
+import dash_week_range_picker
+
+dash_week_range_picker.WeekRangePickerInput(
+    id="period",
+    value=["2026-06-01", "2026-06-14"],
+    presets=[{"label": "Last 12 Weeks", "value": ["2026-03-16", "2026-06-07"]}],
+)
+```
+
+Clicking any day selects that day's **whole ISO week** (Monday–Sunday), instead of the arbitrary single
+day a normal date picker would give you. Use it wherever the underlying data only varies per week, so
+picking a Wednesday over a Tuesday can't quietly imply a precision the numbers don't have.
+
+The full prop list lives in the component's own docstring - `help(WeekRangePickerInput)`, or hover it in
+an IDE.
+
+### Value
+
+`value` is always `[startISO, endISO]`, both `YYYY-MM-DD` and already week-aligned to a Monday and a
+Sunday respectively:
+
+| State                               | `value`                        |
+| ----------------------------------- | ------------------------------ |
+| Empty                               | `[None, None]` (or unset)      |
+| Selected                            | `["2026-06-01", "2026-06-14"]` |
+| Mid-selection (`mode="range"` only) | `["2026-06-01", None]`         |
+
+This is the same shape a Dash range `DatePickerInput` emits, so it drops into callbacks written against
+one unchanged.
+
+### Modes
+
+`mode` sets how many clicks a selection takes. It changes **only the interaction**, never the value
+shape - a single week is just a range whose two borders belong to the same week, so `mode` can be
+switched without touching a single callback:
+
+- **`mode="range"`** (default) - two clicks, one per border. Either order works; clicking an earlier
+  week second still yields an ordered `[start, end]`. Hover previews the range while it's half-picked.
+- **`mode="single"`** - one click commits the whole week under the cursor, and each later click replaces
+  it outright. Hover continuously previews the week a click would take, which is what tells the user the
+  selection snaps to weeks rather than days; moving off the calendar without clicking restores whatever
+  was committed.
+
+### Nothing is auto-corrected
+
+`value` and `presets` entries are rendered and emitted exactly as given, in both modes. A value spanning
+three weeks under `mode="single"` shows a three-week band and reaches your callback as three weeks -
+it is not narrowed to one, and not rejected. The same goes for switching `mode` while a wide value is
+already selected.
+
+That's deliberate. Silently narrowing a `Last 12 Weeks` preset down to one week would produce a result
+that _looks_ right - the input fills in, the chart redraws - while quietly answering a different
+question, which is the worst way for a BI tool to fail. Passing the value through is at least faithful
+to what was configured, and the next calendar click brings it back to a single week anyway.
+
+The one thing the component will not do is fight the app for control of `value`: it never calls
+`setProps` to "fix" an incoming value, since a Dash callback writing that same prop back would loop.
+
+### Gotcha: `minDate` decides which month opens first
+
+With no `value` set, Mantine's own `Calendar` opens on `minDate`'s month whenever today is _after_
+`minDate` - i.e. in the usual case of a `minDate` some way in the past, it opens there rather than on
+the current month (`Calendar.mjs`, `minDate && dayjs(now).isAfter(minDate) ? minDate : now`). This is
+upstream Mantine behaviour, not something this component adds, and it applies to both modes.
+
+If that matters, keep `minDate` reasonably close to the range people actually pick in, or seed `value`
+with the week you want the calendar to open on.
+
 ## Requirement: a page that already loads Mantine 8.x base styles
 
 This component deliberately does **not** bundle `@mantine/core`/`@mantine/dates`'s own base CSS. It expects the host
