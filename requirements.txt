@@ -1,2 +1,10 @@
 # dash is required to call `build:py`
 dash[dev]==4.4.1
+
+# demo-only, for `make demo` (usage.py) - NOT a dependency of the published package, whose
+# install_requires stays empty on purpose: this component works with any host that already loads
+# Mantine 8.x base styles, and dash-mantine-components is only the most likely such host.
+# usage.py needs one because it IS the host there, and the component deliberately ships no base CSS
+# of its own (see README). Pinned to the release whose bundled @mantine/* is 8.3.18, matching
+# package.json exactly, so the demo can't drift from what we build against.
+dash_mantine_components==2.8.0

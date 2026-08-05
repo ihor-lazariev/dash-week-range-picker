@@ -1,10 +1,25 @@
 from datetime import date, timedelta
 
+import dash_mantine_components as dmc
 from dash import Dash, callback, html, Input, Output
 
 import dash_week_range_picker
 
 app = Dash(__name__)
+
+# This component ships no Mantine base CSS of its own (see README), so it renders
+# as unstyled raw HTML unless the page already loads that stylesheet. Here usage.py
+# IS the host, so it has to supply it - and the way a real Dash app does that is by
+# rendering dash-mantine-components, which carries the stylesheet inside its own JS
+# bundle. Importing dmc is NOT enough on its own: Dash serves a component suite's
+# assets only when a component from that suite is actually in the layout, so the
+# MantineProvider below is what pulls the CSS in, not the import.
+#
+# The same theme dict also goes to the picker's own `theme` prop on purpose: the
+# component nests its own private MantineProvider (it bundles its own @mantine/core
+# copy), so it does NOT inherit this one. That's the easy mistake to make, and
+# mirroring the real integration here keeps it visible.
+MANTINE_THEME = {"primaryColor": "indigo"}
 
 TODAY = date.today()
 # .weekday() is 0 for Monday, so this is always the Monday of the current ISO week
@@ -20,9 +35,9 @@ def week_of(offset_weeks):
 def last_n_weeks(n):
     """The last `n` complete weeks, i.e. ending last Sunday.
 
-    Counts back in whole weeks and only then takes the borders. Doing day-precise math first
-    (`timedelta(weeks=n, days=-1)`) and snapping the result afterwards miscounts by a variable
-    amount depending on what weekday it happens to be run on.
+    Counts back in whole weeks and only then takes the borders. Doing day-precise
+    math first (`timedelta(weeks=n, days=-1)`) and snapping the result afterwards
+    miscounts by a variable amount depending on what weekday it is run on.
     """
     return [
         (THIS_MONDAY - timedelta(weeks=n)).isoformat(),
@@ -35,9 +50,10 @@ PRESETS = [
     {"label": "Last 12 Weeks", "value": last_n_weeks(12)},
 ]
 
-# single mode still takes [start, end] pairs - these are just one week wide. The last one deliberately
-# is not: preset values pass through verbatim in both modes, so it selects all 3 weeks (and the next
-# calendar click replaces it with a single one) - here to eyeball that documented behaviour.
+# single mode still takes [start, end] pairs - these are just one week wide. The last
+# one deliberately is not: preset values pass through verbatim in both modes, so it
+# selects all 3 weeks (and the next calendar click replaces it with a single one) -
+# here to eyeball that documented behaviour.
 SINGLE_PRESETS = [
     {"label": "Last Week", "value": week_of(-1)},
     {"label": "Week Before", "value": week_of(-2)},
@@ -47,40 +63,45 @@ SINGLE_PRESETS = [
 MIN_DATE = (THIS_MONDAY - timedelta(weeks=52)).isoformat()
 MAX_DATE = (THIS_MONDAY + timedelta(days=6)).isoformat()  # end of the current week
 
-app.layout = html.Div(
-    [
-        html.Div(
-            [
-                html.H4('mode="range" (default)'),
-                dash_week_range_picker.WeekRangePickerInput(
-                    id="input",
-                    value=[None, None],
-                    minDate=MIN_DATE,
-                    maxDate=MAX_DATE,
-                    presets=PRESETS,
-                    persistence=True,
-                ),
-                html.Div(id="output"),
-            ]
-        ),
-        html.Div(
-            [
-                html.H4('mode="single"'),
-                dash_week_range_picker.WeekRangePickerInput(
-                    id="input-single",
-                    mode="single",
-                    value=[None, None],
-                    minDate=MIN_DATE,
-                    maxDate=MAX_DATE,
-                    presets=SINGLE_PRESETS,
-                    placeholder="Select Week",
-                    persistence=True,
-                ),
-                html.Div(id="output-single"),
-            ]
-        ),
-    ],
-    style={"padding": "40px", "display": "flex", "gap": "40px"},
+app.layout = dmc.MantineProvider(
+    theme=MANTINE_THEME,
+    children=html.Div(
+        [
+            html.Div(
+                [
+                    html.H4('mode="range" (default)'),
+                    dash_week_range_picker.WeekRangePickerInput(
+                        id="input",
+                        value=[None, None],
+                        minDate=MIN_DATE,
+                        maxDate=MAX_DATE,
+                        presets=PRESETS,
+                        theme=MANTINE_THEME,
+                        persistence=True,
+                    ),
+                    html.Div(id="output"),
+                ]
+            ),
+            html.Div(
+                [
+                    html.H4('mode="single"'),
+                    dash_week_range_picker.WeekRangePickerInput(
+                        id="input-single",
+                        mode="single",
+                        value=[None, None],
+                        minDate=MIN_DATE,
+                        maxDate=MAX_DATE,
+                        presets=SINGLE_PRESETS,
+                        placeholder="Select Week",
+                        theme=MANTINE_THEME,
+                        persistence=True,
+                    ),
+                    html.Div(id="output-single"),
+                ]
+            ),
+        ],
+        style={"padding": "40px", "display": "flex", "gap": "40px"},
+    ),
 )
 
 
@@ -89,8 +110,8 @@ def display_output(value):
     return "value: {}".format(value)
 
 
-# identical callback signature to the range one above - the whole point of keeping [start, end] in both
-# modes is that switching `mode` never touches the callback side
+# identical callback signature to the range one above - the whole point of keeping
+# [start, end] in both modes is that switching `mode` never touches the callback side
 @callback(Output("output-single", "children"), Input("input-single", "value"))
 def display_single_output(value):
     return "value: {}".format(value)

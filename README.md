@@ -89,6 +89,14 @@ If you use this component in a page with no other Mantine-based library loaded, 
 `import '@mantine/core/styles.css'; import '@mantine/dates/styles.css';` in your own app - see `src/demo/index.js` for
 exactly this, since the standalone demo app has no such host to rely on.
 
+Both demos in this repo have to play that host role themselves, and each does it the way its own stack would:
+`src/demo/index.js` (the webpack playground, `make serve`) imports the two stylesheets directly, while `usage.py` (the
+Dash app, `make demo`) renders a `dmc.MantineProvider`, which pulls the same stylesheet in from
+`dash-mantine-components`'s own bundle. Note that _importing_ dmc is not enough there - Dash serves a component suite's
+assets only once a component from that suite is actually in the layout. `dash-mantine-components` is therefore in
+`requirements.txt` (demo-only); the published package's `install_requires` stays empty, since any Mantine 8.x host will
+do.
+
 Get started with:
 
 1. Install Dash and its dependencies: https://dash.plotly.com/installation
